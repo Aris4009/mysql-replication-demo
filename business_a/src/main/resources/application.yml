@@ -1,0 +1,23 @@
+server:
+  port: 8001
+  error:
+    path: /error
+spring:
+  application:
+    name: business-a
+  main:
+    banner-mode: 'off'
+    log-startup-info: false
+  datasource:
+    master:
+      url: jdbc:mysql://10.0.4.113:20000/my_rep?useSSL=false
+      username: slave
+      password: 111111
+    slave:
+      - url: jdbc:mysql://10.0.4.113:20001/my_rep?useSSL=false
+        username: slave
+        password: 111111
+      - url: jdbc:mysql://10.0.4.113:20002/my_rep?useSSL=false
+        username: slave
+        password: 111111
+
