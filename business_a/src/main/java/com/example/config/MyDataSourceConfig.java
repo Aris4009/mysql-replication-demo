@@ -10,13 +10,11 @@ import org.beetl.sql.core.SQLManager;
 import org.beetl.sql.core.UnderlinedNameConversion;
 import org.beetl.sql.core.db.MySqlStyle;
 import org.beetl.sql.core.loader.MarkdownClasspathLoader;
-import org.beetl.sql.ext.DebugInterceptor;
 import org.beetl.sql.ext.spring.BeetlSqlScannerConfigurer;
 import org.beetl.sql.ext.spring.SpringConnectionSource;
 import org.beetl.sql.ext.spring.SqlManagerFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -25,8 +23,7 @@ import org.springframework.transaction.TransactionManager;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
-@ConditionalOnProperty(name = "spring.datasource.enable", havingValue = "true")
-public class DataSourceConfig {
+public class MyDataSourceConfig {
 
 	@Bean
 	public DataSource master(@Autowired DataSourceProperty dataSourceProperty) {
@@ -56,15 +53,15 @@ public class DataSourceConfig {
 	}
 
 	@Bean
-	public SqlManagerFactoryBean sqlManagerFactoryBean(@Qualifier("master") DataSource master,
+	public SqlManagerFactoryBean sqlManagerFactoryBean(@Qualifier("master") DataSource dataSource,
 			@Qualifier("slaves") List<DataSource> slaves) {
 		SqlManagerFactoryBean sqlManagerFactoryBean = new SqlManagerFactoryBean();
 		sqlManagerFactoryBean.setDbStyle(new MySqlStyle());
 		sqlManagerFactoryBean.setSqlLoader(new MarkdownClasspathLoader("sql"));
 		sqlManagerFactoryBean.setNc(new UnderlinedNameConversion());
-		sqlManagerFactoryBean.setInterceptors(new Interceptor[]{new DebugInterceptor()});
+		sqlManagerFactoryBean.setInterceptors(new Interceptor[]{new PrintSqlInterceptor()});
 		SpringConnectionSource springConnectionSource = new SpringConnectionSource();
-		springConnectionSource.setMasterSource(master);
+		springConnectionSource.setMasterSource(dataSource);
 		springConnectionSource.setSlaveSource(slaves.toArray(new DataSource[0]));
 		sqlManagerFactoryBean.setCs(springConnectionSource);
 		return sqlManagerFactoryBean;
@@ -76,7 +73,7 @@ public class DataSourceConfig {
 	}
 
 	@Bean
-	public BeetlSqlScannerConfigurer beetlSqlScannerConfigurer() {
+	public static BeetlSqlScannerConfigurer beetlSqlScannerConfigurer() {
 		BeetlSqlScannerConfigurer beetlSqlScannerConfigurer = new BeetlSqlScannerConfigurer();
 		// 该类实现了BeanDefinitionRegistryPostProcessor，无法使用占位符来获取配置
 		beetlSqlScannerConfigurer.setDaoSuffix("Dao");

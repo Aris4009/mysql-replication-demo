@@ -1,12 +1,12 @@
 package com.example.entity;
 
-import org.beetl.sql.annotation.entity.Auto;
+import org.beetl.sql.annotation.entity.AutoID;
 import org.beetl.sql.annotation.entity.Table;
 
 @Table(name = "user")
 public class User {
 
-	@Auto
+	@AutoID
 	private Integer id;
 
 	private String name;

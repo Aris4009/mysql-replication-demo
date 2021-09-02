@@ -7,7 +7,7 @@ spring:
     name: business-a
   main:
     banner-mode: 'off'
-    log-startup-info: false
+    log-startup-info: true
   datasource:
     master:
       url: jdbc:mysql://10.0.4.113:20000/my_rep?useSSL=false

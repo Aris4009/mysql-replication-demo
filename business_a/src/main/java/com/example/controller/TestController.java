@@ -16,7 +16,7 @@ import com.example.entity.User;
 @RequestMapping("/api/test")
 public class TestController {
 
-	private UserDao userDao;
+	private final UserDao userDao;
 
 	public TestController(UserDao userDao) {
 		this.userDao = userDao;
